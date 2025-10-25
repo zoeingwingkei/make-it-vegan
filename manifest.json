@@ -6,7 +6,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["sidePanel"],
+  "permissions": ["sidePanel", "activeTab"],
   "minimum_chrome_version": "138",
   "side_panel": {
     "default_path": "sidepanel/index.html"
@@ -19,5 +19,13 @@
       "128": "images/icon128.png"
     },
     "default_title": "Open Chat Interface"
-  }
+  },
+  "content_scripts":[
+    {
+      "js": ["content.js"],
+      "matches": ["https://*.allrecipes.com/*"]
+    }
+  ]
 }
+
+

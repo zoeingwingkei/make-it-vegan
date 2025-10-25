@@ -15,6 +15,25 @@ const labelTemperature = document.body.querySelector('#label-temperature');
 const labelTopK = document.body.querySelector('#label-top-k');
 
 let session;
+let currentRecipeTitle = null;
+
+// Listen for messages from content.js
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "RECIPE_INFO") {
+    console.log("Received recipe info from content.js:", message.title);
+    currentRecipeTitle = message.title;
+    updateRecipeDisplay();
+  }
+});
+
+function updateRecipeDisplay() {
+  if (currentRecipeTitle) {
+    const recipeTitleElement = document.body.querySelector('#recipe-title');
+    if (recipeTitleElement) {
+      recipeTitleElement.textContent = `Current Recipe: ${currentRecipeTitle}`;
+    }
+  }
+}
 
 async function runPrompt(prompt, params) {
   try {
@@ -134,3 +153,4 @@ function show(element) {
 function hide(element) {
   element.setAttribute('hidden', '');
 }
+
