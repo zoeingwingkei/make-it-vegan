@@ -6,7 +6,13 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": ["sidePanel", "activeTab", "tabs", "storage"],
+  "permissions": [
+    "sidePanel",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "storage"
+  ],
   "minimum_chrome_version": "138",
   "side_panel": {
     "default_path": "sidepanel/index.html"
@@ -20,12 +26,21 @@
     },
     "default_title": "Open Chat Interface"
   },
-  "content_scripts":[
+  "content_scripts": [
     {
-      "js": ["utils/findCoverImg.js", "utils/findRecipeTitle.js", "content.js"],
-      "matches": ["<all_urls>"]
+      "js": [
+        "utils/findCoverImg.js",
+        "utils/findRecipeTitle.js",
+        "utils/findRecipeIngredients.js",
+        "utils/findRecipeSteps.js",
+        "content.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
+  ],
+  "host_permissions": [
+    "<all_urls>"
   ]
 }
-
-

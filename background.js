@@ -6,26 +6,9 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
   }
 });
 
-// // Listen for tab changes
-// chrome.tabs.onActivated.addListener((activeInfo) => {
-//   if (activeInfo.tabId) {
-//     chrome.tabs.sendMessage(activeInfo.tabId, {
-//       type: 'UPDATE_RECIPE',
-//     });
-//   }
-// });
-
-// // Listen for tab updates (e.g., URL changes)
-// chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-//   if (changeInfo.status === 'complete' && tab.active) {
-//     chrome.tabs.sendMessage(tabId, {
-//       type: 'UPDATE_RECIPE',
-//     });
-//   }
-// });
-
 // Listen for tab activation (when user switches tabs)
-chrome.tabs.onActivated.addListener(async(activeInfo) => {
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  console.log('Tab activated: ', activeInfo.tabId);
   await updateSidePanel(activeInfo.tabId);
 });
 
@@ -38,10 +21,18 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
 async function updateSidePanel(tabId) {
   try {
+    // Inject content script into the active tab to ensure we can access the recipe data
+    console.log('Injecting content script into tab: ', tabId);
+    await chrome.scripting.executeScript({
+      target: { tabId: tabId },
+      files: ["utils/findCoverImg.js", "utils/findRecipeTitle.js", "utils/findRecipeIngredients.js", "utils/findRecipeSteps.js", "content.js"],
+    });
+
     // Get the recipe data from content.js
     const response = await chrome.tabs.sendMessage(tabId, {
       action: 'GET_RECIPE_DATA',
     })
+    console.log('Received recipe data from content script: ', response);
 
     // Store the recipe data in local storage
     await chrome.storage.local.set({
@@ -53,9 +44,12 @@ async function updateSidePanel(tabId) {
       action: 'UPDATE_RECIPE_DATA',
       recipeData: response,
       tabId: tabId
-    })
+    }).catch((error) => {
+      // Side panel might not be ready... that's okay, we'll just log the error for now. The side panel will update when it initializes.
+      console.log('Side panel is not ready to receive messages: ', error);
+    });
 
   } catch (error) {
-    console.error('Error updating side panel:', error);
+    console.log('Error updating side panel:', error);
   }
 }

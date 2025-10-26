@@ -1,41 +1,46 @@
-/* global LanguageModel */
-
-// let currentRecipeTitle = null;
-// let currentRecipeImageSrc = null;
 
 const recipeTitleElement = document.body.querySelector('#recipe-title');
 const recipeImageElement = document.body.querySelector('#recipe-image');
+const recipeDataElement = document.body.querySelector('#recipe-container');
+const noRecipeFoundElement = document.body.querySelector('#no-recipe-found');
+const recipeIngredientsElement = document.body.querySelector('#recipe-ingredients');
+const recipeStepsElement = document.body.querySelector('#recipe-steps');
 
-// // Read the recipe info from local storage when the side panel loads
-// async function loadRecipeInfo(){
-//   const recipeTitle = await chrome.storage.local.get('recipeTitle');
-//   const recipeImage = await chrome.storage.local.get('recipeImage');
-
-//   currentRecipeTitle = recipeTitle.recipeTitle || "Title Not Found";
-//   currentRecipeImageSrc = recipeImage.recipeImage || "Image Not Found";
-
-//   updateRecipeDisplay();
-// }
-
-// loadRecipeInfo();
-
-// // Listen for recipe updates
-// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-//   if (message.type === "RECIPE_UPDATED") {
-//     loadRecipeInfo();
-//   }
-// });
-
-// // Listen for local storage changes
-// chrome.storage.onChanged.addListener((changes, area) => {
-//   if (area === 'local') {
-//     loadRecipeInfo();
-//   }
-// });
 
 async function updateRecipeDisplay(recipeData) {
+  // Function check to ensure recipeData is valid
+  function isValidRecipe(data) {
+    if (!data) return false;
+    if (data.title == "Title Not Found") return false;
+    if (data.ingredients.length === 0 || data.ingredients[0] === "Ingredients Not Found") return false;
+    if (data.steps.length === 0 || data.steps[0] === "Steps Not Found") return false;
+    return true;
+  }
+
+  if (!isValidRecipe(recipeData)) {
+    recipeDataElement.hidden = true;
+    noRecipeFoundElement.hidden = false;
+    return;
+  }
+
+  // Show the recipe data elements
+  recipeDataElement.hidden = false;
+  noRecipeFoundElement.hidden = true;
   recipeTitleElement.innerText = recipeData.title || "Title Not Found";
   recipeImageElement.src = recipeData.image || "Image Not Found";
+  recipeIngredientsElement.innerHTML = ''; // Clear previous ingredients
+  recipeStepsElement.innerHTML = ''; // Clear previous steps
+  recipeData.ingredients.forEach(ingredient => {
+    const li = document.createElement('li');
+    li.textContent = ingredient;
+    recipeIngredientsElement.appendChild(li);
+  });
+  recipeData.steps.forEach(step => {
+    const li = document.createElement('li');
+    li.textContent = step;
+    recipeStepsElement.appendChild(li);
+  });
+
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -48,7 +53,7 @@ async function initializeSidePanel() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const stored = await chrome.storage.local.get(`recipe_${tab.id}`);
   const recipeData = stored[`recipe_${tab.id}`];
-  
+
   if (recipeData) {
     updateRecipeDisplay(recipeData);
   } else {
@@ -59,7 +64,7 @@ async function initializeSidePanel() {
       });
       updateRecipeDisplay(response);
     } catch (error) {
-      console.error('Error initializing side panel:', error);
+      console.log('Error initializing side panel:', error);
     }
   }
 }
