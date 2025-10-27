@@ -96,25 +96,37 @@ function extractStepsFromSchema(recipeInstructions) {
   
   // Handle string format
   if (typeof recipeInstructions === 'string') {
-    return recipeInstructions.split(/\n+/).map(s => s.trim()).filter(s => s.length > 0);
+    // Split by newlines and clean each line
+    return recipeInstructions.split(/\n+/)
+      .map(s => getTextWithoutImages(s))
+      .filter(s => s.length > 0);
   }
   
   // Handle array format
   if (Array.isArray(recipeInstructions)) {
     recipeInstructions.forEach(instruction => {
       if (typeof instruction === 'string') {
-        steps.push(instruction.trim());
+        const cleaned = getTextWithoutImages(instruction);
+        if (cleaned) {
+          steps.push(cleaned);
+        }
       } else if (instruction['@type'] === 'HowToStep') {
         // HowToStep object with text property
         if (instruction.text) {
-          steps.push(instruction.text.trim());
+          const cleaned = getTextWithoutImages(instruction.text);
+          if (cleaned) {
+            steps.push(cleaned);
+          }
         }
       } else if (instruction['@type'] === 'HowToSection') {
         // HowToSection with nested steps
         if (instruction.itemListElement && Array.isArray(instruction.itemListElement)) {
           instruction.itemListElement.forEach(step => {
             if (step.text) {
-              steps.push(step.text.trim());
+              const cleaned = getTextWithoutImages(step.text);
+              if (cleaned) {
+                steps.push(cleaned);
+              }
             }
           });
         }
@@ -125,6 +137,43 @@ function extractStepsFromSchema(recipeInstructions) {
   return steps.filter(step => step.length > 0);
 }
 
+// Helper function to get text content excluding images and their alt text
+function getTextWithoutImages(element) {
+  // If it's a string, clean it of HTML tags
+  if (typeof element === 'string') {
+    // Remove all HTML tags including img tags
+    return element.replace(/<[^>]*>/g, '').trim();
+  }
+  
+  // If it's not an HTMLElement, try to get its text content
+  if (!(element instanceof HTMLElement)) {
+    return String(element).replace(/<[^>]*>/g, '').trim();
+  }
+  
+  // Clone the element to avoid modifying the original DOM
+  const clone = element.cloneNode(true);
+  
+  // Remove all img elements
+  const images = clone.querySelectorAll('img');
+  images.forEach(img => img.remove());
+  
+  // Remove all picture elements
+  const pictures = clone.querySelectorAll('picture');
+  pictures.forEach(picture => picture.remove());
+  
+  // Remove all svg elements (sometimes used as images)
+  const svgs = clone.querySelectorAll('svg');
+  svgs.forEach(svg => svg.remove());
+  
+  // Get the text content and trim it
+  let text = clone.textContent.trim();
+  
+  // Additional cleanup: remove any remaining HTML tags (in case innerHTML leaked through)
+  text = text.replace(/<[^>]*>/g, '').trim();
+  
+  return text;
+}
+
 // Helper function to extract steps from a container element
 function extractStepsFromContainer(container) {
   const steps = [];
@@ -132,23 +181,67 @@ function extractStepsFromContainer(container) {
   // Try to find list items
   const listItems = container.querySelectorAll('li');
   if (listItems.length > 0) {
+    // First pass: check if ANY items are definitely instructions
+    let hasConfirmedInstruction = false;
+    const itemTexts = [];
+    
     listItems.forEach(item => {
-      const text = item.textContent.trim();
+      const text = getTextWithoutImages(item);
+      itemTexts.push(text);
       if (text && text.length > 0 && isLikelyInstruction(text)) {
-        steps.push(text);
+        hasConfirmedInstruction = true;
       }
     });
-    return steps;
+    
+    // If we found at least one confirmed instruction, accept all non-empty items
+    if (hasConfirmedInstruction) {
+      itemTexts.forEach(text => {
+        if (text && text.length > 10 && text.length < 1000) {
+          steps.push(text);
+        }
+      });
+      return steps;
+    } else {
+      // Otherwise, use the stricter filtering
+      itemTexts.forEach(text => {
+        if (text && text.length > 0 && isLikelyInstruction(text)) {
+          steps.push(text);
+        }
+      });
+      return steps;
+    }
   }
   
   // Try to find paragraphs or divs with step-related classes
   const blocks = container.querySelectorAll('p, div[class*="step" i], div[class*="instruction" i]');
+  
+  // Check if any blocks are confirmed instructions
+  let hasConfirmedInstruction = false;
+  const blockTexts = [];
+  
   blocks.forEach(block => {
-    const text = block.textContent.trim();
+    const text = getTextWithoutImages(block);
+    blockTexts.push(text);
     if (text && text.length > 0 && isLikelyInstruction(text)) {
-      steps.push(text);
+      hasConfirmedInstruction = true;
     }
   });
+  
+  // If we found at least one confirmed instruction, accept all non-empty blocks
+  if (hasConfirmedInstruction) {
+    blockTexts.forEach(text => {
+      if (text && text.length > 10 && text.length < 1000) {
+        steps.push(text);
+      }
+    });
+  } else {
+    // Otherwise, use the stricter filtering
+    blockTexts.forEach(text => {
+      if (text && text.length > 0 && isLikelyInstruction(text)) {
+        steps.push(text);
+      }
+    });
+  }
   
   return steps;
 }
@@ -157,8 +250,50 @@ function extractStepsFromContainer(container) {
 function extractStepsFromSection(heading) {
   const steps = [];
   let currentElement = heading.nextElementSibling;
+  let hasConfirmedInstruction = false;
+  const allTexts = [];
   
-  // Traverse siblings until we hit another heading or run out of elements
+  // First pass: collect all text and check for confirmed instructions
+  let tempElement = heading.nextElementSibling;
+  while (tempElement) {
+    const tagName = tempElement.tagName.toLowerCase();
+    
+    // Stop if we hit another heading
+    if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName)) {
+      break;
+    }
+    
+    // Check lists
+    if (tagName === 'ul' || tagName === 'ol') {
+      const listItems = tempElement.querySelectorAll('li');
+      listItems.forEach(item => {
+        const text = getTextWithoutImages(item);
+        if (text && text.length > 0) {
+          allTexts.push(text);
+          if (isLikelyInstruction(text)) {
+            hasConfirmedInstruction = true;
+          }
+        }
+      });
+    }
+    
+    // Check paragraphs or divs
+    if (tagName === 'p' || tagName === 'div') {
+      const text = getTextWithoutImages(tempElement);
+      if (text && text.length > 0) {
+        allTexts.push(text);
+        if (isLikelyInstruction(text)) {
+          hasConfirmedInstruction = true;
+        }
+      }
+    }
+    
+    tempElement = tempElement.nextElementSibling;
+  }
+  
+  // Second pass: extract based on whether we found confirmed instructions
+  currentElement = heading.nextElementSibling;
+  
   while (currentElement) {
     const tagName = currentElement.tagName.toLowerCase();
     
@@ -171,9 +306,17 @@ function extractStepsFromSection(heading) {
     if (tagName === 'ul' || tagName === 'ol') {
       const listItems = currentElement.querySelectorAll('li');
       listItems.forEach(item => {
-        const text = item.textContent.trim();
-        if (text && text.length > 0 && isLikelyInstruction(text)) {
-          steps.push(text);
+        const text = getTextWithoutImages(item);
+        if (hasConfirmedInstruction) {
+          // Accept all non-empty items if we have at least one confirmed instruction
+          if (text && text.length > 10 && text.length < 1000) {
+            steps.push(text);
+          }
+        } else {
+          // Use stricter filtering
+          if (text && text.length > 0 && isLikelyInstruction(text)) {
+            steps.push(text);
+          }
         }
       });
       
@@ -185,9 +328,17 @@ function extractStepsFromSection(heading) {
     
     // Extract from paragraphs or divs
     if (tagName === 'p' || tagName === 'div') {
-      const text = currentElement.textContent.trim();
-      if (text && text.length > 0 && isLikelyInstruction(text)) {
-        steps.push(text);
+      const text = getTextWithoutImages(currentElement);
+      if (hasConfirmedInstruction) {
+        // Accept all non-empty items if we have at least one confirmed instruction
+        if (text && text.length > 10 && text.length < 1000) {
+          steps.push(text);
+        }
+      } else {
+        // Use stricter filtering
+        if (text && text.length > 0 && isLikelyInstruction(text)) {
+          steps.push(text);
+        }
       }
     }
     
@@ -202,12 +353,33 @@ function extractStepsFromList(list) {
   const steps = [];
   const listItems = list.querySelectorAll('li');
   
+  // First pass: check if ANY items are definitely instructions
+  let hasConfirmedInstruction = false;
+  const itemTexts = [];
+  
   listItems.forEach(item => {
-    const text = item.textContent.trim();
+    const text = getTextWithoutImages(item);
+    itemTexts.push(text);
     if (text && text.length > 0 && isLikelyInstruction(text)) {
-      steps.push(text);
+      hasConfirmedInstruction = true;
     }
   });
+  
+  // If we found at least one confirmed instruction, accept all non-empty items
+  if (hasConfirmedInstruction) {
+    itemTexts.forEach(text => {
+      if (text && text.length > 10 && text.length < 1000) {
+        steps.push(text);
+      }
+    });
+  } else {
+    // Otherwise, use the stricter filtering
+    itemTexts.forEach(text => {
+      if (text && text.length > 0 && isLikelyInstruction(text)) {
+        steps.push(text);
+      }
+    });
+  }
   
   return steps;
 }
@@ -286,14 +458,20 @@ function isLikelyInstruction(text) {
   
   // Look for common cooking action verbs (instructions typically start with verbs)
   const cookingVerbs = [
-    'preheat', 'heat', 'cook', 'bake', 'boil', 'simmer', 'fry', 'sauté', 'roast',
+    'preheat', 'heat', 'cook', 'bake', 'boil', 'simmer', 'fry', 'sautÃ©', 'roast',
     'grill', 'mix', 'stir', 'whisk', 'beat', 'fold', 'combine', 'blend', 'chop',
     'dice', 'slice', 'mince', 'cut', 'add', 'pour', 'place', 'put', 'set',
     'remove', 'transfer', 'drain', 'rinse', 'wash', 'peel', 'season', 'sprinkle',
     'spread', 'brush', 'cover', 'wrap', 'refrigerate', 'freeze', 'let', 'allow',
     'bring', 'reduce', 'increase', 'lower', 'raise', 'flip', 'turn', 'toss',
     'garnish', 'serve', 'arrange', 'layer', 'prepare', 'marinate', 'coat',
-    'toast', 'rub'
+    'toast', 'rub', 'divide', 'split', 'grease', 'line', 'spray', 'sift',
+    'cool', 'chill', 'knead', 'roll', 'press', 'flatten', 'shape', 'form',
+    'squeeze', 'zest', 'grate', 'shred', 'crumble', 'mash', 'puree', 'strain',
+    'measure', 'weigh', 'adjust', 'taste', 'check', 'test', 'insert', 'pierce',
+    'poke', 'make', 'create', 'build', 'assemble', 'decorate', 'top', 'finish',
+    'dust', 'drizzle', 'dollop', 'scoop', 'ladle', 'spoon', 'fill', 'stuff',
+    'wrap', 'seal', 'crimp', 'pinch', 'twist', 'secure', 'tie', 'fasten'
   ];
   
   const startsWithVerb = cookingVerbs.some(verb => {
@@ -302,26 +480,48 @@ function isLikelyInstruction(text) {
   });
   
   // Look for time-related words (common in instructions)
-  const timeWords = ['minute', 'minutes', 'hour', 'hours', 'second', 'seconds', 'until'];
+  const timeWords = ['minute', 'minutes', 'hour', 'hours', 'second', 'seconds', 'until', 'while', 'during'];
   const hasTimeWord = timeWords.some(word => lowerText.includes(word));
   
   // Look for temperature references
-  const hasTemperature = /\d+\s*°|degrees|fahrenheit|celsius/i.test(text);
+  const hasTemperature = /\d+\s*Â°|degrees|fahrenheit|celsius/i.test(text);
   
   // Instructions often contain "and" connecting multiple actions
-  const hasConnector = lowerText.includes(' and ') || lowerText.includes(', then ');
+  const hasConnector = lowerText.includes(' and ') || lowerText.includes(', then ') || lowerText.includes(' then ');
+  
+  // Check for prep/cooking container references
+  const containerWords = ['bowl', 'pan', 'pot', 'dish', 'tray', 'sheet', 'rack', 'oven', 'mixer', 'processor'];
+  const hasContainer = containerWords.some(word => lowerText.includes(word));
+  
+  // Check for food state change words
+  const stateWords = ['golden', 'brown', 'soft', 'tender', 'crisp', 'smooth', 'thick', 'bubbly', 'set', 'firm', 'done', 'cooked', 'ready'];
+  const hasStateWord = stateWords.some(word => lowerText.includes(word));
+  
+  // Check for continuation words that suggest multi-step process
+  const continuationWords = ['next', 'then', 'after', 'before', 'once', 'when', 'if', 'until', 'while'];
+  const hasContinuation = continuationWords.some(word => {
+    const pattern = new RegExp(`\\b${word}\\b`, 'i');
+    return pattern.test(lowerText);
+  });
   
   // Filter out obvious non-instructions
   const nonInstructionPatterns = [
-    /^(ingredients?|nutritional?|note|tip|variation)/i,
-    /^(prep time|cook time|total time|servings?|yield)/i
+    /^(ingredients?|nutritional?|nutrition facts|note|tip|tips|variation|variations)/i,
+    /^(prep time|cook time|total time|servings?|yield|calories|protein|fat|carbs)/i,
+    /^(by |posted |published |updated |saved |print |pin |share |tweet)/i
   ];
   
   if (nonInstructionPatterns.some(pattern => pattern.test(text))) {
     return false;
   }
   
-  return startsWithVerb || hasTimeWord || hasTemperature || hasConnector;
+  // More lenient return: if it has ANY strong indicator, consider it an instruction
+  return startsWithVerb || 
+         hasTimeWord || 
+         hasTemperature || 
+         (hasConnector && (hasContainer || hasStateWord)) ||
+         (hasContinuation && text.length > 20) ||
+         (hasContainer && hasStateWord);
 }
 
 // Example usage:
