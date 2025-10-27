@@ -44,11 +44,17 @@ function getRecipeSteps(article) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'GET_RECIPE_DATA') {
+        const bodyElement = document.querySelector('body');
+        const articleElement = document.querySelector('article');
+        const recipeTitle = getRecipeTitle(bodyElement);
+        const recipeImage = getRecipeImage(articleElement);
+        const recipeIngredients = getRecipeIngredients(articleElement);
+        const recipeSteps = getRecipeSteps(articleElement);
         const recipeData = {
-            title: getRecipeTitle(document.querySelector('body')),
-            image: getRecipeImage(document.querySelector('article')),
-            ingredients: getRecipeIngredients(document.querySelector('article')),
-            steps: getRecipeSteps(document.querySelector('article')),
+            title: recipeTitle,
+            image: recipeImage,
+            ingredients: recipeIngredients,
+            steps: recipeSteps,
         };
         sendResponse(recipeData);
     }
