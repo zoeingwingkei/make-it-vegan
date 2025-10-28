@@ -15,12 +15,22 @@ const loadingIndicator = document.body.querySelector('#loading-indicator');
 
 const makeVeganButton = document.body.querySelector('#button-make-vegan');
 const refreshButton = document.body.querySelector('#button-fresh');
+const scanButton = document.body.querySelector('#button-scan');
+const autoScanCheckbox = document.body.querySelector('#checkbox-auto-scan');
+const autoScanLabel = document.body.querySelector('#label-auto-scan');
 
 import {checkVeganPrompt, classifyPrompt, convertPrompt, convertStepsPrompt} from './modules/prompts.js';
 import {parseLLMBoolean, parseLLMJSON, extractSubstitutions} from './modules/parsing.js';
 import {runPrompt} from './modules/llm.js';
 
 let session;
+
+async function getRecipeData(){
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const stored = await chrome.storage.local.get(`recipe_${tab.id}`);
+  const recipeData = stored[`recipe_${tab.id}`];
+  return recipeData;
+}
 
 async function updateRecipeDisplay(recipeData) {
   // Function check to ensure recipeData is valid
@@ -64,8 +74,11 @@ async function updateRecipeDisplay(recipeData) {
     recipeStepsElement.appendChild(li);
   });
 
-  // If this is a valid recipe, check vegan
-  checkVegan(recipeData);
+  // If this is a valid recipe, and autoscan is enabled, check vegan
+  const autoScanEnabled = await chrome.storage.sync.get('autoScan');
+  if (autoScanEnabled.autoScan) {
+    checkVegan(recipeData);
+  }
 
 }
 
@@ -79,14 +92,41 @@ function stopLoading() {
   return;
 }
 
+function updateAutoScanUI(isEnabled) {
+  if (isEnabled) {  
+    autoScanLabel.innerText = "Auto Scan (On)";
+    scanButton.hidden = true;
+  } else {
+    autoScanLabel.innerText = "Auto Scan (Off)";
+    scanButton.hidden = false;
+  }
+}
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'UPDATE_RECIPE_DATA') {
     updateRecipeDisplay(message.recipeData);
   }
 });
 
+autoScanCheckbox.addEventListener('change', async () => {
+  const isChecked = autoScanCheckbox.checked;
+  chrome.storage.sync.set({ autoScan: isChecked });
+  updateAutoScanUI(isChecked);
+  const recipeData = await getRecipeData();
+  if (isChecked && recipeData) {
+    checkVegan(recipeData);
+  }
+});
+
 refreshButton.addEventListener('click', async () => {
   initializeSidePanel();
+});
+
+scanButton.addEventListener('click', async () => {
+  const recipeData = await getRecipeData();
+  if (recipeData) {
+    checkVegan(recipeData);
+  }
 });
 
 async function checkVegan(recipe) {
@@ -177,9 +217,15 @@ async function handleMakeVegan(recipe) {
 }
 
 async function initializeSidePanel() {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const stored = await chrome.storage.local.get(`recipe_${tab.id}`);
-  const recipeData = stored[`recipe_${tab.id}`];
+  const recipeData = await getRecipeData();
+  // Get the saved auto scan preference
+  const autoScanEnabled = await chrome.storage.sync.get('autoScan');
+  if ( autoScanEnabled.autoScan === undefined ) {
+    // Default to false if not set
+    await chrome.storage.sync.set({ autoScan: false });
+  }
+  autoScanCheckbox.checked = autoScanEnabled.autoScan || false;
+  updateAutoScanUI(autoScanEnabled.autoScan || false);
 
   if (recipeData) {
     updateRecipeDisplay(recipeData);
