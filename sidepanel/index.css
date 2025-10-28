@@ -6,6 +6,8 @@
     --background-inversed: #33322F;
     --background-hovered: #33322F;
     --background-hovered-inversed: #FFFFFF;
+    --text-primary: #33322F;
+    --text-secondary: #66645C;
     --text-oninverse: #FFFFFF;
     --text-onbrand: #FFFFFF;
 }
@@ -23,11 +25,12 @@ p {
     margin: 0;
 }
 
-.body{
+body {
     background-color: var(--background);
+    color: var(--text-primary);
 }
 
-.body-small {
+.font-body-small {
     font-family: Poppins;
     font-size: 0.75rem;
     font-style: normal;
@@ -35,7 +38,16 @@ p {
     line-height: normal;
 }
 
-.label-small {
+.font-body {
+    font-family: Poppins;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+
+.font-label-small {
     font-family: Poppins;
     font-size: 0.875rem;
     font-style: normal;
@@ -44,9 +56,9 @@ p {
     /* 0.875rem */
 }
 
-.title {
+.font-title {
     font-family: "Young Serif";
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -117,5 +129,10 @@ p {
     min-width: 4.5rem;
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.25rem;
     flex: 1 0 0;
+}
+
+.metadata-item .font-body-small{
+    color: var(--text-secondary);
 }

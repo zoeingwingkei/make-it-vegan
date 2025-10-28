@@ -20,49 +20,53 @@
     <img src="./images/logo.svg" />
     <div id="right-action-panel">
       <div class="switch-container">
-        <p id="label-auto-scan" class="body-small">Auto Scan</p>
+        <p id="label-auto-scan" class="font-body-small">Auto Scan</p>
         <label class="switch-label">
           <input type="checkbox" id="checkbox-auto-scan" class="switch-checkbox" />
           <span class="switch-slider"></span>
         </label>
       </div>
-      <button id="button-scan" class="button-solid"><span class="label-small">Scan</span></button>
+      <button id="button-scan" class="button-solid"><span class="font-label-small">Scan</span></button>
     </div>
   </div>
   <div id="recipe-container">
+    <!-- Alerts -->
     <div id="loading-indicator" hidden>Loading...</div>
     <button id="button-make-vegan" hidden>Make it Vegan</button>
 
+    <!-- Recipe Content -->
     <div id="recipe-title-block">
       <div id="recipe-title-container">
         <p id="vegan-tag"></p>
-        <h1 id="recipe-title" class="title"></h1>
+        <h1 id="recipe-title" class="font-title"></h1>
       </div>
       <img id="recipe-image" src="" alt="Recipe Image" />
     </div>
+    <!-- Meta Data -->
     <div id="metadata-container">
       <div class="metadata-item">
-        <p>Total Time</p>
-        <p id="recipe-total-time"></p>
+        <p class="font-body-small">Total Time</p>
+        <p class="font-label-small" id="recipe-total-time"></p>
       </div>
       <div class="metadata-item">
-        <p>Prep Time</p>
-        <p id="recipe-prep-time"></p>
+        <p class="font-body-small">Prep Time</p>
+        <p class="font-label-small" id="recipe-prep-time"></p>
       </div>
       <div class="metadata-item">
-        <p>Cook Time</p>
-        <p id="recipe-cook-time"></p>
+        <p class="font-body-small">Cook Time</p>
+        <p class="font-label-small" id="recipe-cook-time"></p>
       </div>
       <div class="metadata-item">
-
-        <p>Servings</p>
-        <p id="recipe-servings"></p>
+        <p class="font-body-small">Servings</p>
+        <p class="font-label-small" id="recipe-servings"></p>
       </div>
     </div>
-    <h2>Ingredients</h2>
-    <ul id="recipe-ingredients"></ul>
-    <h2>Steps</h2>
-    <ol id="recipe-steps"></ol>
+    <!-- Ingredients -->
+    <h2 class="font-label-small">Ingredients</h2>
+    <ul id="recipe-ingredients" class="font-body"></ul>
+    <!-- Steps -->
+    <h2 class="font-label-small">Steps</h2>
+    <ol id="recipe-steps" class="font-body"></ol>
 
     <p id="no-recipe-found" hidden>No Recipe Found</p>
     <button id="button-fresh" hidden>Refresh</button>

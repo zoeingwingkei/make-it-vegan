@@ -330,12 +330,51 @@ function cleanTimeString(text) {
   // Remove any remaining colons at the start
   cleaned = cleaned.replace(/^:\s*/, '');
   
+  // Remove duplicate time units (e.g., "35 minutes mins" -> "35 minutes")
+  cleaned = removeDuplicateTimeUnits(cleaned);
+  
   // Validate that it looks like a time value
   if (!isValidTimeString(cleaned)) {
     return null;
   }
   
   return cleaned;
+}
+
+// Helper function to remove duplicate time units from a string
+function removeDuplicateTimeUnits(text) {
+  if (!text) return text;
+  
+  // Define time unit groups (variations of the same unit)
+  const timeUnitGroups = [
+    ['hour', 'hours', 'hr', 'hrs', 'h'],
+    ['minute', 'minutes', 'min', 'mins', 'm'],
+    ['second', 'seconds', 'sec', 'secs', 's'],
+    ['day', 'days', 'd']
+  ];
+  
+  let result = text;
+  
+  // For each time unit group, check if there are duplicates
+  for (const unitGroup of timeUnitGroups) {
+    // Create a regex pattern to find numbers followed by any unit from this group
+    // Example: (\d+)\s*(hour|hours|hr|hrs|h)\s*(hour|hours|hr|hrs|h)?
+    const unitPattern = unitGroup.join('|');
+    const regex = new RegExp(
+      `(\\d+)\\s*(${unitPattern})\\s+(${unitPattern})\\b`,
+      'gi'
+    );
+    
+    // Replace duplicates with just the first occurrence
+    // Keep the longer form (e.g., "minutes" over "mins")
+    result = result.replace(regex, (match, number, unit1, unit2) => {
+      // Prefer the longer/more formal unit name
+      const longerUnit = unit1.length >= unit2.length ? unit1 : unit2;
+      return `${number} ${longerUnit}`;
+    });
+  }
+  
+  return result.trim();
 }
 
 // Helper function to validate that a string looks like a time value
