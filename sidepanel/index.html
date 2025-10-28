@@ -8,12 +8,20 @@
 </head>
 
 <body>
-  <button id="button-check-vegan">Check Vegan</button>
+  <div id="loading-indicator" hidden>Loading...</div>
   <button id="button-make-vegan" hidden>Make it Vegan</button>
   <div id="recipe-container">
     <p id="vegan-tag"></p>
     <h1 id="recipe-title"></h1>
     <img id="recipe-image" src="" alt="Recipe Image" />
+    <p>Total Time</p>
+    <p id="recipe-total-time"></p>
+    <p>Prep Time</p>
+    <p id="recipe-prep-time"></p>
+    <p>Cook Time</p>
+    <p id="recipe-cook-time"></p>
+    <p>Servings</p>
+    <p id="recipe-servings"></p>
     <h2>Ingredients</h2>
     <ul id="recipe-ingredients"></ul>
     <h2>Steps</h2>
@@ -21,7 +29,7 @@
   </div>
   <p id="no-recipe-found" hidden>No Recipe Found</p>
   <button id="button-fresh" hidden>Refresh</button>
-  <script src="index.js" type=""></script>
+  <script src="index.js" type="module"></script>
 </body>
 
 </html>

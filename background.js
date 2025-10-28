@@ -25,7 +25,7 @@ async function updateSidePanel(tabId) {
     console.log('Injecting content script into tab: ', tabId);
     await chrome.scripting.executeScript({
       target: { tabId: tabId },
-      files: ["utils/findCoverImg.js", "utils/findRecipeTitle.js", "utils/findRecipeIngredients.js", "utils/findRecipeSteps.js", "content.js"],
+      files: ["utils/findCoverImg.js", "utils/findRecipeTitle.js", "utils/findRecipeIngredients.js", "utils/findRecipeSteps.js","utils/findRecipeMetaData.js", "content.js"],
     });
 
     // Get the recipe data from content.js

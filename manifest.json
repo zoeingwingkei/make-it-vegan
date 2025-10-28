@@ -33,11 +33,13 @@
         "utils/findRecipeTitle.js",
         "utils/findRecipeIngredients.js",
         "utils/findRecipeSteps.js",
+        "utils/findRecipeMetaData.js",
         "content.js"
       ],
       "matches": [
         "<all_urls>"
-      ]
+      ],
+      "run_at": "document_end"
     }
   ],
   "host_permissions": [

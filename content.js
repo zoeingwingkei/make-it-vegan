@@ -48,11 +48,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const articleElement = document.querySelector('article');
         const recipeTitle = getRecipeTitle(bodyElement);
         const recipeImage = getRecipeImage(articleElement);
+        const recipeMetadata = findRecipeMetadata(bodyElement);
         const recipeIngredients = getRecipeIngredients(articleElement);
         const recipeSteps = getRecipeSteps(articleElement);
         const recipeData = {
             title: recipeTitle,
             image: recipeImage,
+            metadata: recipeMetadata,
             ingredients: recipeIngredients,
             steps: recipeSteps,
         };
