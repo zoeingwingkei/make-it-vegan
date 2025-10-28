@@ -5,35 +5,68 @@
   <meta charset="UTF-8">
   <title>Vanilla Recipe</title>
   <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet" href="./styles/switch.css" />
+  <link rel="stylesheet" href="./styles/button.css" />
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Young+Serif&display=swap"
+    rel="stylesheet">
 </head>
 
 <body>
-  <div>
-    <button id="button-scan">Scan</button>
-    <p id="label-auto-scan">Auto Scan</p>
-    <input type="checkbox" id="checkbox-auto-scan" />
+  <div id="top-nav">
+    <img src="./images/logo.svg" />
+    <div id="right-action-panel">
+      <div class="switch-container">
+        <p id="label-auto-scan" class="body-small">Auto Scan</p>
+        <label class="switch-label">
+          <input type="checkbox" id="checkbox-auto-scan" class="switch-checkbox" />
+          <span class="switch-slider"></span>
+        </label>
+      </div>
+      <button id="button-scan" class="button-solid"><span class="label-small">Scan</span></button>
+    </div>
   </div>
-  <div id="loading-indicator" hidden>Loading...</div>
-  <button id="button-make-vegan" hidden>Make it Vegan</button>
   <div id="recipe-container">
-    <p id="vegan-tag"></p>
-    <h1 id="recipe-title"></h1>
-    <img id="recipe-image" src="" alt="Recipe Image" />
-    <p>Total Time</p>
-    <p id="recipe-total-time"></p>
-    <p>Prep Time</p>
-    <p id="recipe-prep-time"></p>
-    <p>Cook Time</p>
-    <p id="recipe-cook-time"></p>
-    <p>Servings</p>
-    <p id="recipe-servings"></p>
+    <div id="loading-indicator" hidden>Loading...</div>
+    <button id="button-make-vegan" hidden>Make it Vegan</button>
+
+    <div id="recipe-title-block">
+      <div id="recipe-title-container">
+        <p id="vegan-tag"></p>
+        <h1 id="recipe-title" class="title"></h1>
+      </div>
+      <img id="recipe-image" src="" alt="Recipe Image" />
+    </div>
+    <div id="metadata-container">
+      <div class="metadata-item">
+        <p>Total Time</p>
+        <p id="recipe-total-time"></p>
+      </div>
+      <div class="metadata-item">
+        <p>Prep Time</p>
+        <p id="recipe-prep-time"></p>
+      </div>
+      <div class="metadata-item">
+        <p>Cook Time</p>
+        <p id="recipe-cook-time"></p>
+      </div>
+      <div class="metadata-item">
+
+        <p>Servings</p>
+        <p id="recipe-servings"></p>
+      </div>
+    </div>
     <h2>Ingredients</h2>
     <ul id="recipe-ingredients"></ul>
     <h2>Steps</h2>
     <ol id="recipe-steps"></ol>
+
+    <p id="no-recipe-found" hidden>No Recipe Found</p>
+    <button id="button-fresh" hidden>Refresh</button>
   </div>
-  <p id="no-recipe-found" hidden>No Recipe Found</p>
-  <button id="button-fresh" hidden>Refresh</button>
   <script src="index.js" type="module"></script>
 </body>
 

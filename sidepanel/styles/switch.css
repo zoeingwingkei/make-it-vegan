@@ -1,0 +1,55 @@
+/* Slider Switch */
+/* Hide the default checkbox */
+.switch-checkbox {
+    display: none;
+}
+
+/* The slider switch container */
+.switch-label {
+    position: relative;
+    display: inline-block;
+    width: 2.25rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+/* The slider track */
+.switch-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--background-disabled);
+    border-radius: 1.5rem;
+    transition: 0.4s;
+}
+
+/* The slider button */
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 1rem;
+    width: 1rem;
+    left: 0.25rem;
+    top: 0.25rem;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+/* When checked, change track color */
+.switch-checkbox:checked+.switch-slider {
+    background-color: var(--background-brand);
+}
+
+/* When checked, move the button */
+.switch-checkbox:checked+.switch-slider:before {
+    transform: translateX(0.75rem);
+}
+
+.switch-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
