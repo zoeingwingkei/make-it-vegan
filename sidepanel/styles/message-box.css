@@ -1,0 +1,55 @@
+#message-title-container {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    align-self: stretch;
+}
+
+.text-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    align-self: stretch;
+}
+
+#message-box-container {
+    display: flex;
+    width: 23.125rem;
+    padding: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid #B3B0A7;
+    background: #F4F2ED;
+    margin: 0.75rem;
+    position: relative;
+}
+
+#message-box-container.can-make-vegan {
+    background: #E9F4D8;
+    border-color: #BCD792;
+}
+
+#action-panel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    align-self: stretch;
+}
+
+#action-panel[hidden] {
+    display: none;
+}
+
+#message-box-container[hidden] {
+    display: none;
+}
+
+#button-close {
+    position: absolute;
+    padding: 0;
+    right: 0.75rem;
+    top: 0.75rem;
+}

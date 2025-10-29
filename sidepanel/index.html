@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="index.css" />
   <link rel="stylesheet" href="./styles/switch.css" />
   <link rel="stylesheet" href="./styles/button.css" />
+  <link rel="stylesheet" href="./styles/loader.css" />
+  <link rel="stylesheet" href="./styles/message-box.css" />
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,54 +28,91 @@
           <span class="switch-slider"></span>
         </label>
       </div>
-      <button id="button-scan" class="button-solid"><span class="font-label-small">Scan</span></button>
+      <button id="button-scan" class="button-solid"><span class="font-label-small">Check Vegan</span></button>
     </div>
   </div>
-  <div id="recipe-container">
-    <!-- Alerts -->
-    <div id="loading-indicator" hidden>Loading...</div>
-    <button id="button-make-vegan" hidden>Make it Vegan</button>
+  <div id="page-loader-container" hidden>
+    <div id="page-loader"></div>
+    <span class="font-title">Loading Recipe...</span>
+  </div>
+  <div id="page-content">
+    <div id="message-box-container" hidden>
+      <div id="message-title-container">
+        <div class="loader" id="message-box-loader"></div>
+        <div class="text-content">
+          <span id="message-title" class="font-body-bold">This recipe is not vegan.</span>
+          <span id="message-body" class="font-body">And it is unlikely to make it vegan.</span>
+        </div>
+      </div>
+      <div id="action-panel">
+        <button id="button-make-vegan" class="button-primary">
+          <img src="./images/leaf.svg" />
+          <span class="font-label-small">
+            Make it Vegan
+          </span>
+        </button>
+        <button id="button-never-mind" class="button-text">
+          <span class="font-label-small">
+            Never mind
+          </span>
+        </button>
+      </div>
+      <button id="button-close" class="button-text">
+        <img src="./images/close.svg" />
+      </button>
+    </div>
+    <div id="recipe-container">
 
-    <!-- Recipe Content -->
-    <div id="recipe-title-block">
-      <div id="recipe-title-container">
-        <p id="vegan-tag"></p>
-        <h1 id="recipe-title" class="font-title"></h1>
+      <!-- Recipe Content -->
+      <div id="recipe-title-block">
+        <div id="recipe-title-container">
+          <div id="vegan-tag-container" hidden>
+            <div class="loader" id="vegan-tag-loader"></div>
+            <span id="vegan-tag" class="font-body-small"></span>
+          </div>
+          <h1 id="recipe-title" class="font-title"></h1>
+        </div>
+        <img id="recipe-image" src="" alt="Recipe Image" />
       </div>
-      <img id="recipe-image" src="" alt="Recipe Image" />
-    </div>
-    <!-- Meta Data -->
-    <div id="metadata-container">
-      <div class="metadata-item">
-        <p class="font-body-small">Total Time</p>
-        <p class="font-label-small" id="recipe-total-time"></p>
+      <!-- Meta Data -->
+      <div id="metadata-container">
+        <div class="metadata-item">
+          <p class="font-body-small">Total Time</p>
+          <p class="font-label-small" id="recipe-total-time"></p>
+        </div>
+        <div class="metadata-item">
+          <p class="font-body-small">Prep Time</p>
+          <p class="font-label-small" id="recipe-prep-time"></p>
+        </div>
+        <div class="metadata-item">
+          <p class="font-body-small">Cook Time</p>
+          <p class="font-label-small" id="recipe-cook-time"></p>
+        </div>
+        <div class="metadata-item">
+          <p class="font-body-small">Servings</p>
+          <p class="font-label-small" id="recipe-servings"></p>
+        </div>
       </div>
-      <div class="metadata-item">
-        <p class="font-body-small">Prep Time</p>
-        <p class="font-label-small" id="recipe-prep-time"></p>
+      <!-- Ingredients -->
+      <div id="ingredients-container">
+        <h2 class="font-title-small">Ingredients</h2>
+        <ul id="recipe-ingredients" class="font-body"></ul>
       </div>
-      <div class="metadata-item">
-        <p class="font-body-small">Cook Time</p>
-        <p class="font-label-small" id="recipe-cook-time"></p>
+      <!-- Steps -->
+      <div id="steps-container">
+        <h2 class="font-title-small">Steps</h2>
+        <ol id="recipe-steps" class="font-body"></ol>
       </div>
-      <div class="metadata-item">
-        <p class="font-body-small">Servings</p>
-        <p class="font-label-small" id="recipe-servings"></p>
-      </div>
-    </div>
-    <!-- Ingredients -->
-    <div id="ingredients-container">
-      <h2 class="font-title-small">Ingredients</h2>
-      <ul id="recipe-ingredients" class="font-body"></ul>
-    </div>
-    <!-- Steps -->
-    <div id="steps-container">
-      <h2 class="font-title-small">Steps</h2>
-      <ol id="recipe-steps" class="font-body"></ol>
-    </div>
 
-    <p id="no-recipe-found" hidden>No Recipe Found</p>
-    <button id="button-fresh" hidden>Refresh</button>
+    </div>
+    <div id="error-message" hidden>
+      <span class="font-title">Recipe not found.</span>
+      <button id="button-fresh" class="button-primary">
+        <span class="font-label-small">
+          Refresh
+        </span>
+      </button>
+    </div>
   </div>
   <script src="index.js" type="module"></script>
 </body>

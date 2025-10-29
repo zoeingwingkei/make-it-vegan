@@ -49,3 +49,17 @@ button > span{
     background-color: var(--background-hovered-inversed);
     opacity: 0.12;
 }
+
+.button-primary:hover::after{
+    background-color: var(--background-hovered);
+    opacity: 0.25;
+}
+
+.button-text{
+    background: none;
+}
+
+.button-text:hover::after{
+    background-color: var(--background-hovered);
+    opacity: 0.12;
+}
