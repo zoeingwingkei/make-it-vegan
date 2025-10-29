@@ -19,13 +19,13 @@ const scanButton = document.body.querySelector('#button-scan');
 const autoScanCheckbox = document.body.querySelector('#checkbox-auto-scan');
 const autoScanLabel = document.body.querySelector('#label-auto-scan');
 
-import {checkVeganPrompt, classifyPrompt, convertPrompt, convertStepsPrompt} from './modules/prompts.js';
-import {parseLLMBoolean, parseLLMJSON, extractSubstitutions} from './modules/parsing.js';
-import {runPrompt} from './modules/llm.js';
+import { checkVeganPrompt, classifyPrompt, convertPrompt, convertStepsPrompt } from './modules/prompts.js';
+import { parseLLMBoolean, parseLLMJSON, extractSubstitutions } from './modules/parsing.js';
+import { runPrompt } from './modules/llm.js';
 
 let session;
 
-async function getRecipeData(){
+async function getRecipeData() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const stored = await chrome.storage.local.get(`recipe_${tab.id}`);
   const recipeData = stored[`recipe_${tab.id}`];
@@ -63,9 +63,21 @@ async function updateRecipeDisplay(recipeData) {
   recipeStepsElement.innerHTML = ''; // Clear previous steps
   veganTagElement.innerText = ''; // Clear previous tag state
   makeVeganButton.hidden = true;
-  recipeData.ingredients.forEach(ingredient => {
+  recipeData.ingredients.forEach((ingredient, index) => {
     const li = document.createElement('li');
-    li.textContent = ingredient;
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'ingredient-checkbox';
+    checkbox.id = `ingredient-${index}`;
+
+    const label = document.createElement('label');
+    label.htmlFor = `ingredient-${index}`;
+    label.textContent = ingredient;
+
+    li.appendChild(checkbox);
+    li.appendChild(label);
+
     recipeIngredientsElement.appendChild(li);
   });
   recipeData.steps.forEach(step => {
@@ -93,7 +105,7 @@ function stopLoading() {
 }
 
 function updateAutoScanUI(isEnabled) {
-  if (isEnabled) {  
+  if (isEnabled) {
     autoScanLabel.innerText = "Auto Scan (On)";
     scanButton.hidden = true;
   } else {
@@ -175,7 +187,7 @@ async function handleMakeVegan(recipe) {
     const ingredients = recipe.ingredients;
     const ingredientsPrompt = `Ingredients:\n${ingredients.join('\n')}\n\nProvide the substitutions in JSON format.`;
     const convertResult = await runPrompt(ingredientsPrompt, convertPrompt, session);
-    
+
     // Parse the result into a list
     const newIngredients = parseLLMJSON(convertResult);
 
@@ -220,7 +232,7 @@ async function initializeSidePanel() {
   const recipeData = await getRecipeData();
   // Get the saved auto scan preference
   const autoScanEnabled = await chrome.storage.sync.get('autoScan');
-  if ( autoScanEnabled.autoScan === undefined ) {
+  if (autoScanEnabled.autoScan === undefined) {
     // Default to false if not set
     await chrome.storage.sync.set({ autoScan: false });
   }

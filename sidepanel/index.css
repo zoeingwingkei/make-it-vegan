@@ -10,11 +10,16 @@
     --text-secondary: #66645C;
     --text-oninverse: #FFFFFF;
     --text-onbrand: #FFFFFF;
+    --border: #E3E1DA;
 }
 
 #recipe-image {
     width: 100%;
     height: auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
 }
 
 * {
@@ -25,9 +30,24 @@ p {
     margin: 0;
 }
 
+ol{
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+ul{
+    margin: 0;
+    padding-left: 0;
+}
+
+li{
+    margin-bottom: 0.5rem;
+}
+
 body {
     background-color: var(--background);
     color: var(--text-primary);
+    margin-top: 0;
 }
 
 .font-body-small {
@@ -59,6 +79,15 @@ body {
 .font-title {
     font-family: "Young Serif";
     font-size: 1.25rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    margin: 0;
+}
+
+.font-title-small {
+    font-family: "Young Serif";
+    font-size: 1rem;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -136,3 +165,58 @@ body {
 .metadata-item .font-body-small{
     color: var(--text-secondary);
 }
+
+#steps-container, #ingredients-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    align-self: stretch;
+}
+
+#recipe-ingredients{
+    list-style-type: none;
+}
+
+#recipe-ingredients li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem
+}
+
+#recipe-ingredients input[type="checkbox"] {
+  cursor: pointer;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--border); /* Border color */
+  border-radius: 0.25rem;
+  appearance: none; /* Remove default styling */
+  -webkit-appearance: none;
+  background-color: white;
+  position: relative;
+}
+
+#recipe-ingredients input[type="checkbox"]:checked {
+  background-color: var(--background-brand); /* Background when checked */
+  border-color: var(--background-brand);
+}
+
+#recipe-ingredients input[type="checkbox"]:checked::after {
+  content: '✓'; /* Checkmark */
+  position: absolute;
+  color: white;
+  font-size: 14px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#recipe-ingredients input[type="checkbox"]:hover {
+  border-color: var(--text-secondary); /* Hover effect */
+}
+
+#recipe-ingredients label {
+  cursor: pointer;
+  flex: 1;
+}
+
