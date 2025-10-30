@@ -186,7 +186,7 @@ async function checkVegan(recipe) {
       handleMessageBox(false, true, false);
     } else if (!isVegan) {
       stopLoadingScan();
-      veganTagElement.innerText = "Not Vegan";
+      veganTagElement.innerText = "Non Vegan";
       veganTagContainerElement.classList.add('non-vegan');
       await handleNonVeganRecipe(recipe);
     }
@@ -340,7 +340,7 @@ function handleMessageBox(isLoading, hide, canMakeVegan) {
   }
   if (!canMakeVegan) {
     messageBoxLoader.hidden = true;
-    messageTitleElement.innerText = 'This recipe is not vegan.';
+    messageTitleElement.innerText = 'This recipe is Non Vegan.';
     messageBodyElement.innerText = 'And it is unlikely to make it vegan.';
     actionPanelElement.hidden = true;
   }
