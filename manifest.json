@@ -1,8 +1,8 @@
 {
-  "name": "Vanilla Recipe",
+  "name": "Make it Vegan",
   "version": "0.1",
   "manifest_version": 3,
-  "description": "Vanilla Recipe",
+  "description": "Vegan recipe adapter, powered by on-device AI",
   "background": {
     "service_worker": "background.js"
   },
